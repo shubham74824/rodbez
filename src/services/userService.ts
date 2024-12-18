@@ -16,6 +16,18 @@ class UserService {
   static async register(userData: userAttributes) {
     const { name, mobile_Number, password, type } = userData;
     try {
+      // check mobile number already exist then share the status code and error response
+
+      const existingUser = await User.findOne({ where: { mobile_Number } });
+
+      if (existingUser) {
+        return {
+          sucess: false,
+          statusCode: 409,
+          message: "Mobile Number already exist ",
+        };
+      }
+
       // hash password before saving
       const hashedPassword = await bcrypt.hash(password, 10);
       const newUser = await User.create({
@@ -25,9 +37,17 @@ class UserService {
         type,
         rating: 5.0,
       });
-      return { success: true, data: newUser }; // Returning data to controller
+      return {
+        success: true,
+        message: "User created successfully",
+        data: newUser,
+      };
     } catch (error) {
-      return { success: false, message: "soemthing  went wrong" }; // Handle errors here
+      return {
+        success: false,
+        statusCode: 500,
+        message: "Internal server error",
+      }; // Handle errors here
     }
   }
 
@@ -41,7 +61,7 @@ class UserService {
       });
 
       if (!user) {
-        return { success: false, message: "User not found" };
+        return { success: false, statusCode: 404, message: "User not found" };
       }
       // compare the given password with the stored hashed password
 
@@ -94,6 +114,29 @@ class UserService {
       return { success: true, data: { accessToken } };
     } catch (error) {
       return { success: false, message: "Invalid or expired token" };
+    }
+  }
+
+  // based upon the token that we got now lets try to share the profile based upon the token
+  static async getUserById(userId: string) {
+    try {
+      const user = await User.findOne({
+        where: { id: userId },
+        attributes: ["name", "mobile_Number", "type", "rating"],
+      });
+
+      if (!user) {
+        return { success: false, statusCode: 400, message: "User not found " };
+      }
+      return user;
+    } catch (error) {
+      if (Error instanceof Error) {
+        return {
+          sucess: false,
+          statusCode: 500,
+          message: "Internal Server Error ",
+        };
+      }
     }
   }
 }

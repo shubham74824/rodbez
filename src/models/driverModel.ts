@@ -1,66 +1,60 @@
-// models/Driver.ts
+// models/driver.ts
 import { DataTypes, Model, Optional } from 'sequelize';
-import sequelize from '../config/database'; // assuming sequelize is configured
+import sequelize from '../config/database'; // Make sure this is correctly pointing to your Sequelize instance
 
-// Define the attributes interface for the Driver model
-interface DriverAttributes {
+// Define the type for the driver attributes (includes optional createdAt, updatedAt, id)
+export interface driverAttributes {
   id: number;
   name: string;
-  carType: string;
-  rating: number;
-  availability: boolean;
-  location: string;  // Store location in some format (could be a string or JSON)
+  phoneNumber: string;
+  status: string;
+  password: string;  
   createdAt?: Date;
   updatedAt?: Date;
 }
 
-// Define the creation attributes interface
-interface DriverCreationAttributes extends Optional<DriverAttributes, 'id'> {}
+// Define the type for driver creation (does not include id, createdAt, updatedAt)
+export interface driverCreationAttributes extends Optional<driverAttributes, 'id' | 'createdAt' | 'updatedAt'> {}
 
-class Driver extends Model<DriverAttributes, DriverCreationAttributes> implements DriverAttributes {
+// Define the Driver model using Sequelize
+export class Driver extends Model<driverAttributes, driverCreationAttributes> implements driverAttributes {
   public id!: number;
   public name!: string;
-  public carType!: string;
-  public rating!: number;
-  public availability!: boolean;
-  public location!: string;  // Storing location as string for simplicity
-
-  public readonly createdAt!: Date;
-  public readonly updatedAt!: Date;
+  public phoneNumber!: string;
+  public status!: string;
+  public password!: string;  // Add password to the model
+  public createdAt!: Date;
+  public updatedAt!: Date;
 }
 
 Driver.init(
   {
-      name: {
-          type: DataTypes.STRING,
-          allowNull: false,
-      },
-      carType: {
-          type: DataTypes.STRING,
-          allowNull: false,
-      },
-      rating: {
-          type: DataTypes.FLOAT,
-          defaultValue: 0,
-          allowNull: false,
-      },
-      availability: {
-          type: DataTypes.BOOLEAN,
-          defaultValue: true,
-          allowNull: false,
-      },
-      location: {
-          type: DataTypes.STRING, // Could be geospatial data (latitude, longitude)
-          allowNull: false,
-      },
-      id: ''
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true,
+    },
+    name: {
+      type: DataTypes.STRING,
+      allowNull: false,
+    },
+    phoneNumber: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+    },
+    status: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'available',
+    },
+    password: {
+      type: DataTypes.STRING,
+      allowNull: false,  // Ensure that the password is required
+    },
   },
   {
     sequelize,
     tableName: 'drivers',
-    timestamps: true,
-    underscored: true,
   }
 );
-
-export default Driver;

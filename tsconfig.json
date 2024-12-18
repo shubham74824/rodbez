@@ -6,13 +6,15 @@
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
+    "typeRoots": ["./node_modules/@types", "./types"], 
     "types": ["node", "express"],
     "forceConsistentCasingInFileNames": true,
     "skipLibCheck": true,
-    "moduleResolution": "node"  // Added this line
+    "moduleResolution": "node" // Added this line
+  
   },
   "include": ["src/**/*"],
   "exclude": ["node_modules"],
-  "typeRoots": ["./node_modules/@types", "./src/types"]
+  "typeRoots": ["./node_modules/@types", "src/types/**/*.d.ts"]
 
 }

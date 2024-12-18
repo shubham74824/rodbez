@@ -1,9 +1,17 @@
 import express from "express";
 import sequelize from "./config/database";
 import indexRoutes from "./routes/route";
-import "./models/index";
+import cors from 'cors'
 import bodyParser from "body-parser";
 const app = express();
+
+
+// Middleware to handle CORS
+app.use(cors({
+  origin: "http://localhost:3001", // Replace with the frontend's URL
+  methods: "GET,POST,PUT,DELETE", // Allowed HTTP methods
+  allowedHeaders: "Content-Type,Authorization" // Allowed headers
+}));
 
 // Middleware to parse JSON bodies
 app.use(bodyParser.json());

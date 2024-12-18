@@ -9,6 +9,7 @@ interface DBConfig {
   database: string;
   host: string;
   dialect: string;
+  
 }
 
 const config: Record<string, DBConfig> = {

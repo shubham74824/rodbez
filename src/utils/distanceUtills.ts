@@ -1,28 +1,32 @@
-// utils/distanceUtils.ts
+import axios from "axios";
+import dotenv from "dotenv";
 
-// Function to calculate distance between two lat/lon points in kilometers using Haversine formula
-export const getDistanceFromLatLonInKm = (
-    lat1: number,
-    lon1: number,
-    lat2: number,
-    lon2: number
-  ) => {
-    const R = 6371; // Radius of the Earth in km
-    const dLat = deg2rad(lat2 - lat1);
-    const dLon = deg2rad(lon2 - lon1);
-    const a =
-      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-      Math.cos(deg2rad(lat1)) *
-        Math.cos(deg2rad(lat2)) *
-        Math.sin(dLon / 2) *
-        Math.sin(dLon / 2);
-    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distance = R * c; // Distance in kilometers
-    return distance;
+dotenv.config();
+
+export const getDistanceAndTime = async (
+  entryPoint: string,
+  destinationPoint: string
+): Promise<{ distance: number; time: number }> => {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+
+  const url = `https://maps.googleapis.com/maps/api/distancematrix/json?origins=${encodeURIComponent(
+    entryPoint
+  )}&destinations=${encodeURIComponent(
+    destinationPoint
+  )}&mode=driving&key=${apiKey}`;
+
+  const response = await axios.get(url);
+  const data = response.data;
+
+  if (data.status !== "OK") {
+    throw new Error("Failed to fetch distance and time from Google Maps API");
+  }
+
+  const distanceMeters = data.rows[0].elements[0].distance.value;
+  const durationSeconds = data.rows[0].elements[0].duration.value;
+
+  return {
+    distance: distanceMeters / 1000, // Convert to kilometers
+    time: durationSeconds / 3600, // Convert to hours
   };
-  
-  // Function to convert degrees to radians
-  const deg2rad = (deg: number) => {
-    return deg * (Math.PI / 180);
-  };
-  
+};
